@@ -1,6 +1,6 @@
 Real Time Helmet Detection
 ==
-This is pytorch implementation of helmett detector based on [CenterNet](https://arxiv.org/abs/1904.07850). 
+This is pytorch implementation of helmet detector based on [CenterNet](https://arxiv.org/abs/1904.07850). 
 
 I used the [SafetyHelmetWearing-Dataset(SHWD)](https://github.com/njvisionpower/Safety-Helmet-Wearing-Dataset) to detect helmet or person.
 
@@ -49,7 +49,7 @@ $ python evaluate.py --gpu-no 0 --model-load ./WEIGHTS/check_point.pth --data ./
 | --- | --- |
 | ![input](./imgs/000019.jpg) | ![output](./imgs/000019/image.png) |
 
-**Performance of the model**
+**Performance**
 
 | Helmet (AP) | Person (AP) | mAP |
 | --- | --- | --- |
