@@ -71,5 +71,5 @@ $ python export.py --model-load ./WEIGHTS/check_point.pth --nms-th 0.5 --topk 10
 
 3. Run App (Speed: 100FPS @(512x512, 1080 Ti))
 ```bash
-PytorchToCpp/build$ ./main -m ../jit_traced_model_gpu.pth -i ../imgs/000019.jpg
+PytorchToCpp/build$ ./main -m ../../jit_traced_model_gpu.pth -i ../../imgs/000019.jpg
 ```
