@@ -4,7 +4,7 @@ This is pytorch implementation of helmett detector based on [CenterNet](https://
 
 I used the [SafetyHelmetWearing-Dataset(SHWD)](https://github.com/njvisionpower/Safety-Helmet-Wearing-Dataset) to detect helmet or person.
 
-I will continue to update the entries to be filled in [TODO](https://github.com/tyui592/Real_Time_Helmet_Detection/wiki/TODO) for improving performance.
+I will continue to update the entries to be filled in [TODO](https://github.com/tyui592/Real_Time_Helmet_Detection/wiki/TODO) for research.
 
 ## Requirements
 - [imgaug](https://github.com/aleju/imgaug) (v0.4.0)
@@ -16,6 +16,7 @@ I will continue to update the entries to be filled in [TODO](https://github.com/
 ## Features
 - [Automatic Mixed Precision(AMP)](https://pytorch.org/docs/stable/amp.html)
 - [Distributed Data Parallel(DDP)](https://pytorch.org/docs/stable/generated/torch.nn.parallel.DistributedDataParallel.html#torch.nn.parallel.DistributedDataParallel)
+- [TorchScript](https://pytorch.org/docs/stable/jit.html#mixing-tracing-and-scripting)
 
 ## Usage
 [SafetyHelmetWearing-Dataset(SHWD)](https://github.com/njvisionpower/Safety-Helmet-Wearing-Dataset) is need to train detector [[Download](https://drive.google.com/file/d/1qWm7rrwvjAWs1slymbrLaCf7Q-wnGLEX/view)].
