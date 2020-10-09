@@ -1,0 +1,3 @@
+[submodule "mAP"]
+	path = mAP
+	url = https://github.com/tyui592/mAP.git
