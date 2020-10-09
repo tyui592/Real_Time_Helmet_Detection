@@ -1,3 +1,6 @@
 [submodule "mAP"]
 	path = mAP
 	url = https://github.com/tyui592/mAP.git
+[submodule "PytorchToCpp"]
+	path = PytorchToCpp
+	url = https://github.com/tyui592/PytorchToCpp.git
