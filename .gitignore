@@ -1,0 +1,8 @@
+*.ipynb
+*.sh
+*.pth
+__pycache__
+DATA/
+WEIGHTS/
+.ipynb_checkpoints/
+arial.ttf
