@@ -65,7 +65,7 @@ Loading A Pytorch Model in C++
 $ python export.py --model-load ./WEIGHTS/check_point.pth --nms-th 0.5 --topk 100
 ```
 
-2. [Build App](./PytorchToCpp/README.md)
+2. [Build App](https://github.com/tyui592/PytorchToCpp)
 
 
 3. Run App (Speed: 100FPS @(512x512, 1080 Ti))
