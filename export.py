@@ -130,6 +130,7 @@ if __name__ == '__main__':
     print("Model saved at gpu")
 
     if do_test:
+        import cv2
         normalizer = get_normalizer(pretrained=args.pretrained)
         x = cv2.cvtColor(cv2.imread('../0.jpg'), cv2.COLOR_BGR2RGB)
         x = cv2.resize(x, dsize=(512, 512), interpolation=cv2.INTER_AREA)
