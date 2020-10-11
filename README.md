@@ -23,6 +23,8 @@ I will continue to update the entries to be filled in [TODO](https://github.com/
 ## Usage
 [SafetyHelmetWearing-Dataset(SHWD)](https://github.com/njvisionpower/Safety-Helmet-Wearing-Dataset) is need to train detector [[Download](https://drive.google.com/file/d/1qWm7rrwvjAWs1slymbrLaCf7Q-wnGLEX/view)].
 
+The trained model [weights](https://github.com/tyui592/Real_Time_Helmet_Detection/releases/download/v0.0/check_point.pth) and [demo app](https://github.com/tyui592/Real_Time_Helmet_Detection/releases/download/v0.0/main) can be used in [release(v0.0)](https://github.com/tyui592/Real_Time_Helmet_Detection/releases/tag/v0.0).
+
 ### Example Scripts
 
 #### Train
