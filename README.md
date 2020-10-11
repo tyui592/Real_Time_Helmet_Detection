@@ -4,7 +4,7 @@ This is pytorch implementation of helmet detector based on [CenterNet](https://a
 
 I used the [SafetyHelmetWearing-Dataset(SHWD)](https://github.com/njvisionpower/Safety-Helmet-Wearing-Dataset) to detect helmet or person.
 
-I will continue to update the entries to be filled in [TODO](https://github.com/tyui592/Real_Time_Helmet_Detection/wiki/TODO) for research in [`nightly`](https://github.com/tyui592/Real_Time_Helmet_Detection/tree/nightly)
+I will continue to update the entries to be filled in [TODO](https://github.com/tyui592/Real_Time_Helmet_Detection/wiki/TODO/8b89bf72e4c9a6e86d4c2d8009d9fc1cb1c80c13) for research in [`nightly`](https://github.com/tyui592/Real_Time_Helmet_Detection/tree/nightly)
 
 [![Open RTHD in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1-zz9z9_irTNtvsHBxVefsyT-lV0isBbJ?usp=sharing)
 
