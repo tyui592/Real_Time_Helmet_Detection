@@ -46,12 +46,8 @@ def single_device_evaluate(args):
     save_path = os.path.join(args.save_path, 'txt')
     os.makedirs(save_path, exist_ok=True)
     for filename, prediction in predictions.items():
-        cls_ids, scores, boxes = prediction[:, 0], prediction[:, 1], prediction[:, 2:]
-
         filename = os.path.splitext(filename)[0] + '.txt'
-        with open(os.path.join(save_path, filename), 'w') as f:
-            for i in range(cls_ids.shape[0]):
-                f.write('%d %f %d %d %d %d\n'%(cls_ids[i], scores[i], boxes[i][0], boxes[i][1], boxes[i][2], boxes[i][3]))
+        np.savetxt(os.path.join(save_path, filename), prediction, fmt='%d %f %d %d %d %d')
     
     return None
 
