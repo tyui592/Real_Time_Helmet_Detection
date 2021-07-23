@@ -4,45 +4,45 @@ import torch.nn.functional as F
 
 
 class Mish(nn.Module):
-    def __init__(self):        
+    def __init__(self):
         super(Mish, self).__init__()
-        
+
     def forward(self, x):
         return x * (torch.tanh(F.softplus(x)))
 
-    
+
 class Activation(nn.Module):
     def __init__(self, activation: str):
         super(Activation, self).__init__()
-        
-        if activation == 'ReLU':        
+
+        if activation == 'ReLU':
             self.activation = nn.ReLU()
-            
+
         elif activation == 'LReLU':
             self.activation = nn.LeakyReLU()
-            
+
         elif activation == 'PReLU':
             self.activation = nn.PReLU()
-            
+
         elif activation == 'Linear':
             self.activation = nn.Identity()
-            
+
         elif activation == 'Mish':
             self.activation = Mish()
-            
+
         elif activation == 'Sigmoid':
             self.activation = nn.Sigmoid()
 
         elif activation == 'CELU':
             self.activation = nn.CELU()
-            
+
         else:
             raise NotImplementedError("Not expected activation: %s"%activation)
-            
+
     def forward(self, x):
         return self.activation(x)
 
-    
+
 class SPP(nn.Module):
     # Convolutional SPP network
     # Reference: https://github.com/WongKinYiu/PyTorch_YOLOv4
@@ -54,9 +54,9 @@ class SPP(nn.Module):
         self.conv2 = nn.Conv2d(_ch*(len(kernel_sizes)+1), ch, 1, 1, bias=False)
 
         self.pooling_layers = nn.ModuleList()
-        for kernel_size in kernel_sizes: 
+        for kernel_size in kernel_sizes:
             self.pooling_layers.append(nn.MaxPool2d(kernel_size, stride, (kernel_size-1)//2))
-            
+
     def forward(self, x):
         x = self.conv1(x)
         y = [x]
@@ -70,10 +70,10 @@ class Pool(nn.Module):
         super(Pool, self).__init__()
         if pool == 'Max':
             self.pool = nn.MaxPool2d(2, 2)
-            
+
         elif pool == 'Avg':
             self.pool = nn.AvgPool2d(2, 2)
-            
+
         elif pool == 'Conv':
             self.pool = nn.Conv2d(channel, channel, kernel_size=2, stride=2)
 
@@ -86,52 +86,51 @@ class Pool(nn.Module):
 
         else:
             raise NotImplementedError("Not expected pool: %s"%pool)
-    
+
     def forward(self, x):
         return self.pool(x)
-        
-    
+
+
 class Convolution(nn.Module):
     def __init__(self, in_ch: int, out_ch: int, kernel_size: int = 3, stride: int = 1, bias: bool = True, bn: bool = False, activation: str = 'ReLU'):
         super(Convolution, self).__init__()
 
         self.activation = Activation(activation)
-        
+
         self.convolution = nn.Conv2d(in_ch, out_ch, kernel_size, stride, padding=(kernel_size-1)//2, bias=bias)
 
         if bn:
             self.bn = nn.BatchNorm2d(out_ch, affine=True, track_running_stats=True)
         else:
             self.bn = nn.Identity()
-        
+
     def forward(self, x):
         return self.activation(self.bn(self.convolution(x)))
-    
-    
+
+
 class Residual(nn.Module):
     def __init__(self, in_ch: int, out_ch: int, kernel_size:int = 3, stride: int = 1, activation: str = 'ReLU'):
         super(Residual, self).__init__()
-        
+
         self.activation = Activation(activation)
-        
-        self.conv1 = Convolution(in_ch, out_ch, kernel_size, stride, bias=False, bn=True, activation=activation)        
+        self.conv1 = Convolution(in_ch, out_ch, kernel_size, stride, bias=False, bn=True, activation=activation)
         self.conv2 = Convolution(out_ch, out_ch, kernel_size, stride, bias=False, bn=True, activation='Linear')
-        
+
         if in_ch != out_ch:
             self.skip = Convolution(in_ch, out_ch, kernel_size=1, stride=stride, bias=False, bn=True, activation='Linear')
         else:
             self.skip = nn.Identity()
-        
+
     def forward(self, x):
         y = self.conv2(self.conv1(x))
         return self.activation(y + self.skip(x))
 
-    
+
 class Hourglass(nn.Module):
     def __init__(self, num_layer: int, in_ch: int, increase_ch: int = 0, activation: str = 'ReLU', pool: str = 'Max'):
         super(Hourglass, self).__init__()
-        mid_ch = in_ch + increase_ch 
-        
+        mid_ch = in_ch + increase_ch
+
         self.up1    = Residual(in_ch, in_ch, activation=activation)
         self.pool1  = Pool(in_ch, pool=pool)
         _in_ch = in_ch * 4 if pool == 'SPP' else in_ch
@@ -145,7 +144,7 @@ class Hourglass(nn.Module):
 
         self.low3 = Residual(mid_ch, in_ch, activation=activation)
         self.up2  =  nn.Upsample(scale_factor=2, mode='nearest')
-        
+
     def forward(self, x):
         up1   = self.up1(x)
         pool1 = self.pool1(x)
@@ -194,39 +193,39 @@ class Head(nn.Module):
     def forward(self, x):
         return self.layer(x)
 
-    
+
 class StackedHourglass(nn.Module):
-    def __init__(self, num_stack: int, in_ch: int, out_ch: int, increase_ch: int = 0, activation: str = 'ReLU', pool: str = 'Max', neck_activation: str = 'ReLU', neck_pool: str = 'None'):        
+    def __init__(self, num_stack: int, in_ch: int, out_ch: int, increase_ch: int = 0, activation: str = 'ReLU', pool: str = 'Max', neck_activation: str = 'ReLU', neck_pool: str = 'None'):
         super(StackedHourglass, self).__init__()
 
         # downsample the resolution of input (1 --> 1/4(scale_factor))
         self.pre_layer = PreLayer(in_ch=3, mid_ch=128, out_ch=in_ch, activation=activation, pool=pool)
-        
+
         # hourglass modules (backbone)
         self.hourglass_lst = nn.ModuleList([Hourglass(num_layer=4, in_ch=in_ch, increase_ch=increase_ch, activation=activation, pool=pool) for _ in range(num_stack)])
-        
+
         # feature layer (neck)
         self.neck_lst = nn.ModuleList([Neck(in_ch, neck_activation, neck_pool) for _ in range(num_stack)])
-        
+
         # prediction layer (head)
         self.head_lst = nn.ModuleList([Head(in_ch=in_ch, out_ch=out_ch, kernel_size=1, stride=1, bias=True, bn=False, activation='Linear') for _ in range(num_stack)])
-        
+
         # merge intermediate hourglass features
         self.merge_feature = nn.ModuleList([Convolution(in_ch=in_ch, out_ch=in_ch, kernel_size=1, stride=1, bias=True, bn=False, activation='Linear') for _ in range(num_stack-1)])
-        
+
         # merger intermediate hourglass feature and prediction
         self.merge_prediction = nn.ModuleList([Convolution(in_ch=out_ch, out_ch=in_ch, kernel_size=1, stride=1, bias=True, bn=False, activation='Linear') for _ in range(num_stack-1)])
 
         self.num_stack = num_stack
-        
-    
+
+
     def forward(self, x):
         x = self.pre_layer(x)
-        
+
         intermediate_predictions = []
         for i in range(len(self.hourglass_lst)):
             hg          = self.hourglass_lst[i](x)
-            feature     = self.neck_lst[i](hg)            
+            feature     = self.neck_lst[i](hg)
             prediction  = self.head_lst[i](feature)
 
             intermediate_predictions.append(prediction)

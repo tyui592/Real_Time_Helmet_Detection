@@ -8,7 +8,7 @@ from utils import get_normalizer
 class Export(torch.nn.Module):
     def __init__(self, network, topk, scale_factor, conf_th, nms_th, normalized_coord=False):
         super(Export, self).__init__()
-        
+
         self.network          = network
         self.topk             = topk
         self.scale_factor     = scale_factor
@@ -19,7 +19,7 @@ class Export(torch.nn.Module):
     def forward(self, x):
         # x: input tensor (1, c, h, w)
         # output: 1, n, 6, h, w
-        batch_output = self.network(x) 
+        batch_output = self.network(x)
 
         # batch-wise for loop
         for outputs in batch_output.split(1, dim=0):
@@ -34,11 +34,11 @@ class Export(torch.nn.Module):
                     offset = torch.sigmoid(offset)
                     wh = torch.sigmoid(wh)
 
-                boxes, clss, scores = hm2box(heatmap        = heatmap.squeeze_(0), 
-                                             offset         = offset.squeeze_(0), 
-                                             wh             = wh.squeeze_(0), 
-                                             scale_factor   = self.scale_factor, 
-                                             topk           = self.topk, 
+                boxes, clss, scores = hm2box(heatmap        = heatmap.squeeze_(0),
+                                             offset         = offset.squeeze_(0),
+                                             wh             = wh.squeeze_(0),
+                                             scale_factor   = self.scale_factor,
+                                             topk           = self.topk,
                                              conf_th        = self.conf_th,
                                              normalized     = self.normalized_coord)
                 stack_boxes.append(boxes)
@@ -85,15 +85,15 @@ def nms_pytorch(boxes: torch.Tensor, scores: torch.Tensor, threshold: float) -> 
         y2 = torch.min(ymax, _ymax)
         w = torch.clamp((x2 - x1 + 1), min=0)
         h = torch.clamp((y2 - y1 + 1), min=0)
-        
+
         area = (xmax - xmin + 1) * (ymax - ymin + 1)
         _area = (_xmax - _xmin + 1) * (_ymax - _ymin + 1)
         overlap = w * h
-        
+
         iou = overlap / (area + _area - overlap)
 
         _scores[i+1:] = _scores[i+1:] * (iou.squeeze() < threshold).float()
-                
+
     return indices[_scores>0].long()
 
 if __name__ == '__main__':
@@ -137,11 +137,11 @@ if __name__ == '__main__':
         x = torch.tensor(x) # x: HxWxC, 0.0 ~ 255.0
         x = x.permute(2, 0, 1)/255.0
         x = normalizer(x).unsqueeze(0)
-        
+
         box_lst, cls_lst, score_lst = predictor(x.to(device))
         for i in range(box_lst.shape[0]):
             print(', '.join(map(str, box_lst[i].tolist())), ',', cls_lst[i].item(), ',',  score_lst[i].item())
-    
+
         ############ check the output of python and traced models ################
         x = torch.ones(1, 3, 512, 512)
         box_lst, cls_lst, score_lst = predictor(x.to(device))
@@ -150,4 +150,3 @@ if __name__ == '__main__':
         x = torch.ones(1, 3, 512, 512)
         box_lst2, cls_lst2, score_lst2 = traced_model(x)
         print('output python == output jit: ', torch.all(torch.eq(box_lst, box_lst2)))
-

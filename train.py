@@ -33,15 +33,15 @@ def distributed_worker(device, ngpus_per_node, args):
     torch.cuda.set_device(device)
     cudnn.benchmark = True
     print('%s: Use GPU: %d for training'%(time.ctime(), args.gpu_no[device]))
-    
+
     rank        = args.rank * ngpus_per_node + device
     batch_size  = int(args.batch_size / ngpus_per_node)
     num_workers = int((args.num_workers + ngpus_per_node - 1) / ngpus_per_node)
 
     # init process for distributed training
-    dist.init_process_group(backend     = args.dist_backend, 
-                            init_method = args.dist_url, 
-                            world_size  = args.world_size, 
+    dist.init_process_group(backend     = args.dist_backend,
+                            init_method = args.dist_url,
+                            world_size  = args.world_size,
                             rank        = rank)
 
     # load network
@@ -71,10 +71,10 @@ def distributed_worker(device, ngpus_per_node, args):
 
         # adjust learning rate
         scheduler.step()
-        
+
         # save network
         if rank % ngpus_per_node == 0:
-            torch.save({'epoch': epoch+1, 
+            torch.save({'epoch': epoch+1,
                         'state_dict': network.module.state_dict() if hasattr(network, 'module') else network.state_dict(),
                         'optimizer': optimizer.state_dict(),
                         'scheduler': scheduler.state_dict(),
@@ -91,7 +91,7 @@ def train_step(dataloader, network, loss_calculator, optimizer, scheduler, scale
     tictoc = time.time()
     for iteration, (image, gt_heatmap, gt_offset, gt_size, gt_mask, gt_dict) in enumerate(dataloader, 1):
         time_logger['data'].update(time.time() - tictoc)
-        
+
         # forward
         autocast_flag = True if scaler is not None else False
         with autocast(enabled=autocast_flag):
@@ -118,7 +118,7 @@ def train_step(dataloader, network, loss_calculator, optimizer, scheduler, scale
                                              gt_size.to(device),
                                              gt_mask.to(device))
                 total_loss += _total_loss
-            time_logger['loss'].update(time.time() - tictoc)                                            
+            time_logger['loss'].update(time.time() - tictoc)
 
         # gradient accumulation
         optimizatoin_flag = (iteration % args.sub_divisions == 0) or (iteration == len(dataloader))
@@ -164,9 +164,9 @@ def train_step(dataloader, network, loss_calculator, optimizer, scheduler, scale
 def load_network(args, device):
     network = StackedHourglass(num_stack    = args.num_stack,
                                in_ch        = args.hourglass_inch,
-                               out_ch       = args.num_cls+4, 
-                               increase_ch  = args.increase_ch, 
-                               activation   = args.activation, 
+                               out_ch       = args.num_cls+4,
+                               increase_ch  = args.increase_ch,
+                               activation   = args.activation,
                                pool         = args.pool,
                                neck_activation = args.neck_activation,
                                neck_pool       = args.neck_pool).to(device)
@@ -176,7 +176,7 @@ def load_network(args, device):
 
     optimizer, scheduler, loss_calculator = None, None, None
     if args.train_flag:
-        optimizer, scheduler = get_optimizer(network       = network, 
+        optimizer, scheduler = get_optimizer(network       = network,
                                              lr            = args.lr,
                                              lr_milestone  = args.lr_milestone,
                                              lr_gamma      = args.lr_gamma)

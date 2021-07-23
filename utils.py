@@ -16,7 +16,7 @@ def load_pickle(path):
         data = pickle.load(f)
     return data
 
-class AverageMeter:    
+class AverageMeter:
     def __init__(self):
         self.reset()
 
@@ -36,7 +36,7 @@ def ten2pil(tensor, pretrained):
     else:
         denormalize = get_normalizer(denormalize = True, pretrained = pretrained)
     if tensor.is_cuda:
-        tensor = tensor.cpu()    
+        tensor = tensor.cpu()
     tensor = torchvision.utils.make_grid(tensor, pad_value=0.5)
     image  = TF.to_pil_image(denormalize(tensor).clamp_(0.0, 1.0))
     return image
@@ -68,8 +68,8 @@ def get_normalizer(pretrained, denormalize = False):
     return torchvision.transforms.Normalize(mean=MEAN, std=STD)
 
 def blend_heatmap(image, heatmap, pretrained):
-    image_pil = ten2pil(image.detach().cpu(), pretrained=pretrained) 
-    
+    image_pil = ten2pil(image.detach().cpu(), pretrained=pretrained)
+
     for c in range(heatmap.shape[0]):
         heatmap_rgb = [np.zeros(heatmap.shape[1:], dtype=np.uint8)]*2
 

@@ -5,7 +5,7 @@ def get_optimizer(network, lr, lr_milestone, lr_gamma):
 
     scheduler = None
     if lr_milestone is not None:
-        scheduler = optim.lr_scheduler.MultiStepLR(optimizer   = optimizer, 
+        scheduler = optim.lr_scheduler.MultiStepLR(optimizer   = optimizer,
                                                    milestones  = lr_milestone,
                                                    gamma       = lr_gamma)
 

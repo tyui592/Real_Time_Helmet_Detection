@@ -13,11 +13,11 @@ def build_parser():
 
     parser.add_argument('--gpu-no', type=int, nargs='+',
             help='Number of GPU ID to use, 0~N: GPU, -1: CPU', default=[0])
-    parser.add_argument('--random-seed', type=int, 
+    parser.add_argument('--random-seed', type=int,
             help='random seed for reproducible experiments', default=777)
 
     # train
-    parser.add_argument('--train-flag', action='store_true', 
+    parser.add_argument('--train-flag', action='store_true',
             help='set this flag for training', default=False)
     parser.add_argument('--data', type=str,
             help='data path for training or evaluation', default=None)
@@ -29,7 +29,7 @@ def build_parser():
             help='start epoch', default=0)
     parser.add_argument('--end-epoch', type=int,
             help='end epoch', default=100)
-    parser.add_argument('--num-workers', type=int,  
+    parser.add_argument('--num-workers', type=int,
             help='number of workers for data loading', default=8)
 
     # amp
@@ -37,13 +37,13 @@ def build_parser():
             help='automatic mixed precision flag', default=False)
 
     # ddp(distributed data parallel)
-    parser.add_argument('--world-size', type=int,  
+    parser.add_argument('--world-size', type=int,
             help='for distributed data parallel', default=1)
-    parser.add_argument('--rank', type=int,  
+    parser.add_argument('--rank', type=int,
             help='for distributed data parallel', default=0)
-    parser.add_argument('--dist-backend', type=str,  
+    parser.add_argument('--dist-backend', type=str,
             help='for distributed data parallel', default='nccl')
-    parser.add_argument('--dist-url', type=str,  
+    parser.add_argument('--dist-url', type=str,
             help='for distributed data parallel', default='tcp://localhost:29500')
 
     # evaluation and demo
@@ -68,7 +68,7 @@ def build_parser():
     # reference: https://imgaug.readthedocs.io/en/latest/source/examples_bounding_boxes.html#a-simple-example
     parser.add_argument('--crop-percent', type=float, nargs='+',
             help='range(min, max), how many crop the image', default=[0.0, 0.1])
-    parser.add_argument('--color-multiply', type=float, nargs='+',  
+    parser.add_argument('--color-multiply', type=float, nargs='+',
             help='range(min, max), how many adjust the brightness', default=[1.2, 1.5])
     parser.add_argument('--translate-percent', type=float,
             help='ratio, how many translate the image', default=0.1)
@@ -76,25 +76,25 @@ def build_parser():
             help='range(min, ratio), how many scaling the image', default=[0.5, 1.5])
     parser.add_argument('--multiscale_flag', action='store_true',
             help='training with multi-resolution images the resolution is randomly selected per every iteration', default=False)
-    parser.add_argument('--multiscale', type=int, nargs='+',  
+    parser.add_argument('--multiscale', type=int, nargs='+',
             help='[min, max, step] if multiscale_flag set False network train with the max size', default=[320, 512, 64])
 
     # loss
-    parser.add_argument('--hm-weight', type=float,  
+    parser.add_argument('--hm-weight', type=float,
             help='heat map loss weight', default=1.0)
-    parser.add_argument('--offset-weight', type=float,  
+    parser.add_argument('--offset-weight', type=float,
             help='offset loss weight', default=1.0)
-    parser.add_argument('--size-weight', type=float,  
+    parser.add_argument('--size-weight', type=float,
             help='size(wh) loss weight', default=0.1)
-    parser.add_argument('--focal-alpha', type=float,  
+    parser.add_argument('--focal-alpha', type=float,
             help='alpha for focal loss(heatmap)', default=2.0)
-    parser.add_argument('--focal-beta', type=float,  
+    parser.add_argument('--focal-beta', type=float,
             help='beta for focal loss(heatmap)', default=4.0)
 
     # network
-    parser.add_argument('--scale_factor', type=int,  
+    parser.add_argument('--scale_factor', type=int,
             help='downsampling scale from image to heatmap', default=4)
-    parser.add_argument('--num-cls', type=int,  
+    parser.add_argument('--num-cls', type=int,
             help='number of classes', default=2)
     parser.add_argument('--pretrained', type=str,
             help='select pretrained backbone (scratch | imagenet)', default='imagenet')
@@ -111,16 +111,16 @@ def build_parser():
             help='activation funciton', default='ReLU')
     parser.add_argument('--pool', type=str,
             help='pooling function', default='Max')
-    ## neck 
+    ## neck
     parser.add_argument('--neck-activation', type=str,
             help='activation funciton', default='ReLU')
     parser.add_argument('--neck-pool', type=str,
             help='pooling function (None | SPP)', default='None')
 
     # optimization
-    parser.add_argument('--lr', type=float,  
+    parser.add_argument('--lr', type=float,
             help='learning rate, select lr more carefully when use amp', default=5e-4)
-    parser.add_argument('--optim', type=str,  
+    parser.add_argument('--optim', type=str,
             help='optimization algorithm', default='Adam')
     parser.add_argument('--lr-milestone', type=int, nargs='+',
             help='epoch for adjust lr', default=[50, 90])
@@ -149,7 +149,7 @@ def get_arguments():
     # these flags can affect performance, selec carefully
     # torch.backends.cudnn.deterministic = True
     # torch.backends.cudnn.benchmark = False
-    
+
     os.makedirs(args.save_path, exist_ok=True)
     if args.train_flag:
         os.makedirs(os.path.join(args.save_path, 'training_log'), exist_ok=True)
@@ -169,9 +169,9 @@ def get_arguments():
     return args
 
 def update_arguments_for_eval(old, new):
-    targets = ['scale_factor', 'num_cls', 'pretrained', 'normalized_coord', 
+    targets = ['scale_factor', 'num_cls', 'pretrained', 'normalized_coord',
                'num_stack', 'hourglass_inch', 'increase_ch', 'activation', 'pool',
-               'neck_activation', 'neck_pool'] 
+               'neck_activation', 'neck_pool']
 
     for target in targets:
         old.__dict__[target] = new.__dict__[target]

@@ -20,7 +20,7 @@ def single_device_evaluate(args):
     network, _, _, _ = load_network(args, device)
 
     # perdict
-    predictor = Prediction(network          = network, 
+    predictor = Prediction(network          = network,
                            topk             = args.topk,
                            scale_factor     = args.scale_factor,
                            conf_th          = args.conf_th,
@@ -48,12 +48,12 @@ def single_device_evaluate(args):
     for filename, prediction in predictions.items():
         filename = os.path.splitext(filename)[0] + '.txt'
         np.savetxt(os.path.join(save_path, filename), prediction, fmt='%d %f %d %d %d %d')
-    
+
     return None
 
 def evaluate_step(dataloader, predictor, device, args):
     time_logger = defaultdict(AverageMeter)
-    
+
     prediction_results = {}
 
     predictor.eval()
@@ -110,7 +110,7 @@ def resize_box_to_original_scale(boxes, original_size, transformed_size):
 class Prediction(torch.nn.Module):
     def __init__(self, network, topk, scale_factor, conf_th, nms, nms_th, normalized_coord=False):
         super(Prediction, self).__init__()
-        
+
         self.network          = network
         self.topk             = topk
         self.scale_factor     = scale_factor
@@ -137,11 +137,11 @@ class Prediction(torch.nn.Module):
                     offset = torch.sigmoid(offset)
                     wh = torch.sigmoid(wh)
 
-                boxes, clss, scores = hm2box(heatmap        = heatmap.squeeze_(0), 
-                                             offset         = offset.squeeze_(0), 
-                                             wh             = wh.squeeze_(0), 
-                                             scale_factor   = self.scale_factor, 
-                                             topk           = self.topk, 
+                boxes, clss, scores = hm2box(heatmap        = heatmap.squeeze_(0),
+                                             offset         = offset.squeeze_(0),
+                                             wh             = wh.squeeze_(0),
+                                             scale_factor   = self.scale_factor,
+                                             topk           = self.topk,
                                              conf_th        = self.conf_th,
                                              normalized     = self.normalized_coord)
                 stack_boxes.append(boxes)
@@ -149,8 +149,8 @@ class Prediction(torch.nn.Module):
                 stack_scores.append(scores)
 
             # non maximum suppression
-            boxes, clss, scores = self.nonmaximum_supression(torch.cat(stack_boxes,  dim=0), 
-                                                             torch.cat(stack_clss,   dim=0), 
+            boxes, clss, scores = self.nonmaximum_supression(torch.cat(stack_boxes,  dim=0),
+                                                             torch.cat(stack_clss,   dim=0),
                                                              torch.cat(stack_scores, dim=0))
 
             # append boxes per batch
@@ -223,7 +223,7 @@ def soft_nms_pytorch(dets, box_scores, sigma=0.5, thresh=0.001, cuda=0):
         yy1 = np.maximum(dets[i, 1].to("cpu").detach().numpy(), dets[pos:, 1].to("cpu").detach().numpy())
         xx2 = np.minimum(dets[i, 2].to("cpu").detach().numpy(), dets[pos:, 2].to("cpu").detach().numpy())
         yy2 = np.minimum(dets[i, 3].to("cpu").detach().numpy(), dets[pos:, 3].to("cpu").detach().numpy())
-        
+
         w = np.maximum(0.0, xx2 - xx1 + 1)
         h = np.maximum(0.0, yy2 - yy1 + 1)
         inter = torch.tensor(w * h).cuda() if cuda else torch.tensor(w * h)
@@ -240,15 +240,15 @@ def soft_nms_pytorch(dets, box_scores, sigma=0.5, thresh=0.001, cuda=0):
 
 if __name__ == '__main__':
     from config import get_arguments
-    from data import INDEX2CLASS, CLASS2COLOR 
+    from data import INDEX2CLASS, CLASS2COLOR
     from utils import imload, draw_box, write_text
-    
+
     args = get_arguments()
-    
+
     device = torch.device('cpu' if -1 in args.gpu_no else 'cuda')
 
     network, _, _, _ = load_network(args, device)
-    predictor = Prediction(network          = network, 
+    predictor = Prediction(network          = network,
                            topk             = args.topk,
                            scale_factor     = args.scale_factor,
                            conf_th          = args.conf_th,
