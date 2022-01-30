@@ -61,40 +61,9 @@ class Export(torch.nn.Module):
             scores: tensor (N)
             threshold: float
         '''
-        unique_indices = nms_pytorch(boxes, scores, threshold)
+        unique_indices = torchvision.ops.nms(boxes, scores, threshold)
 
         return boxes[unique_indices], clss[unique_indices], scores[unique_indices]
-
-@torch.jit.script
-def nms_pytorch(boxes: torch.Tensor, scores: torch.Tensor, threshold: float) -> torch.Tensor:
-    indices = torch.argsort(scores, descending=True)
-    _boxes = boxes[indices]
-    _scores = scores[indices]
-
-    for i in range(_boxes.shape[0]-1):
-        if _scores[i] == 0:
-            continue
-        xmin, ymin, xmax, ymax = torch.split(_boxes[i], 1, 0)
-
-        _xmin, _ymin, _xmax, _ymax = torch.split(_boxes[i+1:], 1, 1)
-
-        # intersection area
-        x1 = torch.max(xmin, _xmin)
-        y1 = torch.max(ymin, _ymin)
-        x2 = torch.min(xmax, _xmax)
-        y2 = torch.min(ymax, _ymax)
-        w = torch.clamp((x2 - x1 + 1), min=0)
-        h = torch.clamp((y2 - y1 + 1), min=0)
-
-        area = (xmax - xmin + 1) * (ymax - ymin + 1)
-        _area = (_xmax - _xmin + 1) * (_ymax - _ymin + 1)
-        overlap = w * h
-
-        iou = overlap / (area + _area - overlap)
-
-        _scores[i+1:] = _scores[i+1:] * (iou.squeeze() < threshold).float()
-
-    return indices[_scores>0].long()
 
 if __name__ == '__main__':
     from train import load_network
