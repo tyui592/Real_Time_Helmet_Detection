@@ -103,8 +103,7 @@ def train_step(dataloader, network, loss_calculator, optimizer, scheduler, scale
             tictoc = time.time()
             total_loss = 0
             for output in outputs.split(1, dim=1):
-                output.squeeze_(1)
-                pred_heatmap, pred_offset, pred_size = output.split([args.num_cls, 2, 2], dim=1)
+                pred_heatmap, pred_offset, pred_size = output.squeeze(1).split([args.num_cls, 2, 2], dim=1)
                 pred_heatmap = torch.sigmoid(pred_heatmap)
                 if args.normalized_coord:
                     pred_offset = torch.sigmoid(pred_offset)

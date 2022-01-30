@@ -130,16 +130,15 @@ class Prediction(torch.nn.Module):
             # stack(scale)-wise
             stack_boxes, stack_clss, stack_scores = [], [], []
             for output in outputs.split(1, dim=1):
-                output.squeeze_(1)
-                heatmap, offset, wh = output.split([num_cls,2,2], dim=1)
+                heatmap, offset, wh = output.squeeze(1).split([num_cls,2,2], dim=1)
                 heatmap = torch.sigmoid(heatmap)
                 if self.normalized_coord:
                     offset = torch.sigmoid(offset)
                     wh = torch.sigmoid(wh)
 
-                boxes, clss, scores = hm2box(heatmap        = heatmap.squeeze_(0),
-                                             offset         = offset.squeeze_(0),
-                                             wh             = wh.squeeze_(0),
+                boxes, clss, scores = hm2box(heatmap        = heatmap.squeeze(0),
+                                             offset         = offset.squeeze(0),
+                                             wh             = wh.squeeze(0),
                                              scale_factor   = self.scale_factor,
                                              topk           = self.topk,
                                              conf_th        = self.conf_th,
