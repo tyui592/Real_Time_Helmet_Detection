@@ -80,9 +80,9 @@ def hm2box(heatmap, offset, wh, scale_factor=4, topk=10, conf_th=0.3, normalized
 
     scores, indices = peakmap.flatten().topk(topk)
 
-    clss  = torch.floor_divide(indices, (height*width))
+    clss  = torch.div(indices, (height*width), rounding_mode='trunc')
     inds  = torch.fmod(indices, (height*width))
-    yinds = torch.floor_divide(inds, width)
+    yinds = torch.div(inds, width, rounding_mode='trunc')
     xinds = torch.fmod(inds, width)
 
     xoffs = offset[0, yinds, xinds]
